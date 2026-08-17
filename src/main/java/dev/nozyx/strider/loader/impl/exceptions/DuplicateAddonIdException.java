@@ -24,6 +24,6 @@ import dev.nozyx.strider.loader.api.StriderLoaderInternal;
 public final class DuplicateAddonIdException extends RuntimeException {
 
     public DuplicateAddonIdException(String modId) {
-        super("Duplicate mod ID detected: " + modId);
+        super("Duplicate addon ID detected: " + modId);
     }
 }

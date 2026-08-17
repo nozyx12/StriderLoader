@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.nozyx.strider"
-version = "1.0.0"
+version = "1.1.0"
 
 repositories {
     mavenCentral()
@@ -14,8 +14,9 @@ repositories {
 dependencies {
     implementation "org.semver4j:semver4j:6.0.0"
     implementation "tools.jackson.core:jackson-databind:3.2.2"
-    implementation "net.bytebuddy:byte-buddy:1.18.7"
     implementation "com.formdev:flatlaf:3.7.2"
+
+    api "net.bytebuddy:byte-buddy:1.18.7"
 
     compileOnly "org.apache.logging.log4j:log4j-api:2.25.2"
 }

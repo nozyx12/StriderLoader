@@ -31,12 +31,13 @@ import net.bytebuddy.pool.TypePool;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.util.*;
 
 @StriderLoaderInternal
 public final class StriderLoader implements IStriderLoader {
 
-    public static final String LOADER_VERSION = "1.0.0";
+    public static final String LOADER_VERSION = "1.1.0";
 
     public static final StriderLoader INSTANCE = new StriderLoader();
 
@@ -72,15 +73,7 @@ public final class StriderLoader implements IStriderLoader {
             StriderLogger.info("Launching game...");
 
             if (uiEnabled) {
-                new Thread(() -> {
-                    ui.setStatus("Launching game");
-
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ignored) {}
-
-                    ui.close();
-                }).start();
+                ui.setStatus("Launching game");
             }
 
             Class<?> clazz = classLoader.loadClass(gameConfig.entryPoint());
@@ -177,70 +170,38 @@ public final class StriderLoader implements IStriderLoader {
 
         Thread.currentThread().setContextClassLoader(classLoader);
 
-        classLoader.addTransformer((className, bytecode) -> {
-            GameConfig.HookDescriptor hook = gameConfig.hooks().get("readyEvent");
+        GameConfig.HookDescriptor readyHook = gameConfig.hooks().get("readyEvent");
+        TransformationUtils.transformClass(
+                classLoader,
+                readyHook.clazz(),
+                builder -> builder
+                        .visit(
+                                Advice.to(StriderHooks.ReadyHook.class)
+                                        .on(
+                                                ElementMatchers.named(readyHook.name())
+                                                        .and(ElementMatchers.hasDescriptor(readyHook.descriptor()))
+                                        )
+                        )
+        );
 
-            if (!className.equals(hook.clazz())) {
-                return bytecode;
-            }
-
-            ClassFileLocator locator = new ClassFileLocator.Compound(
-                    new ClassFileLocator.Simple(
-                            Map.of(className, bytecode)
-                    ),
-                    ClassFileLocator.ForClassLoader.of(classLoader)
-            );
-
-            TypePool typePool = TypePool.Default.of(locator);
-
-            TypeDescription type = typePool
-                    .describe(className)
-                    .resolve();
-
-            try (DynamicType.Unloaded<?> unloaded = new ByteBuddy()
-                    .redefine(type, locator)
-                    .visit(
-                            Advice.to(StriderHooks.ReadyHook.class)
-                                    .on(ElementMatchers.named(hook.name()).and(ElementMatchers.hasDescriptor(hook.descriptor())))
-                    )
-                    .make()) {
-
-                return unloaded.getBytes();
-            }
-        });
-
-        classLoader.addTransformer((className, bytecode) -> {
-            GameConfig.HookDescriptor hook = gameConfig.hooks().get("brand");
-
-            if (!className.equals(hook.clazz())) {
-                return bytecode;
-            }
-
-            ClassFileLocator locator = new ClassFileLocator.Compound(
-                    new ClassFileLocator.Simple(
-                            Map.of(className, bytecode)
-                    ),
-                    ClassFileLocator.ForClassLoader.of(classLoader)
-            );
-
-            TypePool typePool = TypePool.Default.of(locator);
-
-            TypeDescription type = typePool
-                    .describe(className)
-                    .resolve();
-
-            try (DynamicType.Unloaded<?> unloaded = new ByteBuddy()
-                    .redefine(type, locator)
-                    .method(ElementMatchers.named(hook.name()).and(ElementMatchers.hasDescriptor(hook.descriptor())))
-                    .intercept(MethodDelegation.to(StriderHooks.BrandHook.class))
-                    .make()) {
-
-                return unloaded.getBytes();
-            }
-        });
+        GameConfig.HookDescriptor brandHook = gameConfig.hooks().get("brand");
+        TransformationUtils.transformClass(
+                classLoader,
+                brandHook.clazz(),
+                builder -> builder
+                        .method(
+                                ElementMatchers.named(brandHook.name())
+                                        .and(ElementMatchers.hasDescriptor(brandHook.descriptor()))
+                        )
+                        .intercept(MethodDelegation.to(StriderHooks.BrandHook.class))
+        );
     }
 
     public void handleReadyEvent() {
+        if (uiEnabled) {
+            ui.close();
+        }
+
         addonManager.onReady();
     }
 

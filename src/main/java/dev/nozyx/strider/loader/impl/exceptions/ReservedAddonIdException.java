@@ -23,7 +23,7 @@ import dev.nozyx.strider.loader.api.StriderLoaderInternal;
 @StriderLoaderInternal
 public final class ReservedAddonIdException extends RuntimeException {
 
-    public ReservedAddonIdException(String modId) {
-        super(modId + " is a reserved mod ID");
+    public ReservedAddonIdException(String addonID) {
+        super(addonID + " is a reserved addon ID");
     }
 }

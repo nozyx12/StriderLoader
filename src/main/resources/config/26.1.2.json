@@ -1,0 +1,32 @@
+{
+  "client": {
+    "entryPoint": "net.minecraft.client.main.Main",
+    "hooks": {
+      "readyEvent": {
+        "class": "net.minecraft.core.registries.BuiltInRegistries",
+        "name": "freeze",
+        "descriptor": "()V"
+      },
+      "brand": {
+        "class": "net.minecraft.client.ClientBrandRetriever",
+        "name": "getClientModName",
+        "descriptor": "()Ljava/lang/String;"
+      }
+    }
+  },
+  "server": {
+    "entryPoint": "net.minecraft.server.Main",
+    "hooks": {
+      "readyEvent": {
+        "class": "net.minecraft.core.registries.BuiltInRegistries",
+        "name": "freeze",
+        "descriptor": "()V"
+      },
+      "brand": {
+        "class": "net.minecraft.server.MinecraftServer",
+        "name": "getServerModName",
+        "descriptor": "()Ljava/lang/String;"
+      }
+    }
+  }
+}

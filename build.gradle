@@ -1,0 +1,73 @@
+plugins {
+    id "java-library"
+    id "maven-publish"
+    id "com.gradleup.shadow" version "9.6.1"
+}
+
+group = "dev.nozyx.strider"
+version = "1.0.0"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation "org.semver4j:semver4j:6.0.0"
+    implementation "tools.jackson.core:jackson-databind:3.2.2"
+    implementation "net.bytebuddy:byte-buddy:1.18.7"
+    implementation "com.formdev:flatlaf:3.7.2"
+
+    compileOnly "org.apache.logging.log4j:log4j-api:2.25.2"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = "UTF-8"
+}
+
+tasks.register("generateSourcesJar", Jar) {
+    archiveClassifier.set("sources")
+    from sourceSets.main.allSource
+}
+
+tasks.register("generateJavadocJar", Jar) {
+    archiveClassifier.set("javadoc")
+    from tasks.javadoc
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact(tasks.named("generateSourcesJar").get())
+            artifact(tasks.named("generateJavadocJar").get())
+
+            groupId = group
+            artifactId = "striderloader"
+            version = version
+        }
+    }
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir("repo").get()
+        }
+    }
+}
+
+java {
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(25))
+    }
+}
+
+jar {
+    manifest {
+        attributes(
+                "Implementation-Title": "StriderLoader",
+                "Implementation-Version": version,
+                "Implementation-Vendor": "nozyx12",
+                "Specification-Title": "StriderLoader API",
+                "Specification-Version": version,
+                "Specification-Vendor": "nozyx12"
+        )
+    }
+}

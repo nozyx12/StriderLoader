@@ -33,7 +33,7 @@ public final class StriderHooks {
 
         @Advice.OnMethodEnter
         public static void onEnter() {
-            StriderLoader.INSTANCE.handleReadyEvent();
+            StriderLoader.handleReadyEvent();
         }
     }
 

@@ -19,27 +19,21 @@
 package dev.nozyx.strider.loader.impl;
 
 import dev.nozyx.strider.loader.api.*;
-import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.asm.Advice;
-import net.bytebuddy.description.method.MethodDescription;
-import net.bytebuddy.description.type.TypeDescription;
-import net.bytebuddy.dynamic.ClassFileLocator;
-import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
-import net.bytebuddy.pool.TypePool;
 import tools.jackson.databind.ObjectMapper;
 
 import java.io.*;
-import java.lang.reflect.Method;
+import java.lang.management.ManagementFactory;
 import java.util.*;
 
 @StriderLoaderInternal
 public final class StriderLoader implements IStriderLoader {
 
-    public static final String LOADER_VERSION = "1.1.0";
+    static final String LOADER_VERSION = "1.1.1";
 
-    public static final StriderLoader INSTANCE = new StriderLoader();
+    private static final StriderLoader INSTANCE = new StriderLoader();
 
     private final File addonsFolder = new File("addons");
 
@@ -143,6 +137,21 @@ public final class StriderLoader implements IStriderLoader {
 
         uiEnabled = Boolean.parseBoolean(System.getProperty("striderloader.uiEnabled", "true"));
 
+        String pid = ManagementFactory.getRuntimeMXBean()
+                .getName()
+                .split("@")[0];
+
+        boolean hasStartOnFirstThread =
+                "1".equals(System.getenv("JAVA_STARTED_ON_FIRST_THREAD_" + pid));
+
+        if (uiEnabled && hasStartOnFirstThread) {
+            uiEnabled = false;
+            StriderLogger.warn("""
+                UI will be disabled because -XstartOnFirstThread is enabled.
+                This option is required by Minecraft on macOS,
+                but prevents StriderLoader's startup UI from being handled correctly.""");
+        }
+
         minecraftVersion = mcVersion;
         minecraftSide = mcSide;
 
@@ -197,12 +206,12 @@ public final class StriderLoader implements IStriderLoader {
         );
     }
 
-    public void handleReadyEvent() {
-        if (uiEnabled) {
-            ui.close();
+    public static void handleReadyEvent() {
+        if (INSTANCE.uiEnabled) {
+            INSTANCE.ui.close();
         }
 
-        addonManager.onReady();
+        INSTANCE.addonManager.onReady();
     }
 
     @Override

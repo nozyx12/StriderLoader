@@ -17,6 +17,16 @@
 * Works on both Minecraft client and server
 * Separate addon jar folder: `/addons`
 
+## macOS Compatibility
+
+On macOS, StriderLoader's startup UI can cause thread-related issues when Minecraft is launched with the `-XstartOnFirstThread` JVM option.
+
+In StriderLoader versions `1.0.0` and `1.1.0`, this could cause the loader to freeze due to thread locking issues, particularly when the startup UI attempted to close from the main thread.
+
+Starting with StriderLoader `1.1.1`, the loader automatically detects when `-XstartOnFirstThread` is being used and disables the startup UI to prevent these issues. StriderLoader itself continues to work normally.
+
+For macOS users, it is recommended to enable **"Open the log window when the game starts"** in the Minecraft Launcher. This provides a reliable way to view the game's logs without relying on StriderLoader's startup UI.
+
 ## Minecraft Version Support
 
 StriderLoader versions may support different Minecraft versions over time.
@@ -26,6 +36,10 @@ As StriderLoader evolves, newer loader versions can add support for additional M
 For every new Minecraft version, a minimum StriderLoader version supporting it will be released shortly after the Minecraft release. This ensures that new Minecraft versions can be supported while allowing existing StriderLoader versions to continue supporting the Minecraft versions they were designed for.
 
 The minimum StriderLoader version required for a Minecraft version is defined by StriderLoader's compatibility configuration.
+
+### Currently Supported Minecraft Versions
+
+The current version of StriderLoader currently supports the following Minecraft versions: `26.1`, `26.1.1`, `26.1.2`, `26.2`
 
 ## Creating a StriderLoader Addon
 

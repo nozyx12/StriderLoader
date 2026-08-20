@@ -25,7 +25,7 @@ In StriderLoader versions `1.0.0` and `1.1.0`, this could cause the loader to fr
 
 Starting with StriderLoader `1.1.1`, the loader automatically detects when `-XstartOnFirstThread` is being used and disables the startup UI to prevent these issues. StriderLoader itself continues to work normally.
 
-For macOS users, it is recommended to enable **"Open the log window when the game starts"** in the Minecraft Launcher. This provides a reliable way to view the game's logs without relying on StriderLoader's startup UI.
+For macOS users, it is recommended to enable **"Open output log when Minecraft: Java Edition starts"** in the Minecraft Launcher settings. This provides a reliable way to view the game's logs without relying on StriderLoader's startup UI.
 
 ## Minecraft Version Support
 
